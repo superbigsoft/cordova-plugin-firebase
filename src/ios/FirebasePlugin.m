@@ -388,14 +388,20 @@ static FirebasePlugin *firebasePlugin;
 - (void)logError:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         CDVPluginResult *pluginResult;
-        NSString* errorMessage = [command.arguments objectAtIndex:0];
         if(self.crashlyticsInit){
-          CLSNSLog(@"%@", errorMessage);
+            NSString *message = [command argumentAtIndex:0];
+
+            NSDictionary *userInfo = @{
+                                       NSLocalizedDescriptionKey: NSLocalizedString(@"Unexpected exception", nil),
+                                       NSLocalizedFailureReasonErrorKey: NSLocalizedString(message, nil),
+                                       NSLocalizedRecoverySuggestionErrorKey: NSLocalizedString(@"", nil)};
+
+            NSError *error = [NSError errorWithDomain:@"langkingdom" code:-1 userInfo:userInfo];
+             [[Crashlytics sharedInstance] recordError:error];
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         } else {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERRORINITCRASHLYTICS];
         }
-        assert(NO);
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
