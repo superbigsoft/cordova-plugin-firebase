@@ -1,10 +1,14 @@
 package org.apache.cordova.firebase;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Base64;
@@ -40,6 +44,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -92,8 +97,41 @@ public class FirebasePlugin extends CordovaPlugin {
                         notificationStack.add(extras);
                     }
                 }
+
+                createSilentChannel();
             }
         });
+    }
+
+
+    private void createSilentChannel() {
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) this.cordova.getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+
+            List<NotificationChannel> channels = notificationManager.getNotificationChannels();
+
+            boolean channelExists = false;
+            for (int i = 0; i < channels.size(); i++) {
+                if ("SILENT_CHANNEL_ID".equals(channels.get(i).getId())) {
+                    channelExists = true;
+                }
+            }
+
+            if (!channelExists) {
+                NotificationChannel channel = new NotificationChannel("SILENT_CHANNEL_ID", "SILENT", NotificationManager.IMPORTANCE_HIGH);
+                channel.enableLights(true);
+                channel.enableVibration(false);
+                channel.setShowBadge(true);
+                channel.setSound(
+                        Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.cordova.getActivity().getPackageName() + "/raw/silent"),
+                        new AudioAttributes.Builder()
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                                .build());
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
     }
 
     @Override
