@@ -372,8 +372,10 @@ static FirebasePlugin *firebasePlugin;
     [self.commandDelegate runInBackground:^{
         CDVPluginResult *pluginResult;
         NSString* name = [command.arguments objectAtIndex:0];
-        NSString *description = NSLocalizedString([command argumentAtIndex:1 withDefault:@"No Message Provided"], nil);
-        NSDictionary *parameters = @{ NSLocalizedDescriptionKey: description };
+        //NSString *description = NSLocalizedString([command argumentAtIndex:1 withDefault:@"No Message Provided"], nil);
+        //NSDictionary *parameters = @{ NSLocalizedDescriptionKey: description };
+
+        NSDictionary *parameters = [command argumentAtIndex:1 withDefault:nil andClass:[NSDictionary class]];
 
         if(self.analyticsInit){
           [FIRAnalytics logEventWithName:name parameters:parameters];

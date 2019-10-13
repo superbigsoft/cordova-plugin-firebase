@@ -123,12 +123,7 @@ public class FirebasePlugin extends CordovaPlugin {
                 channel.enableLights(true);
                 channel.enableVibration(false);
                 channel.setShowBadge(true);
-                channel.setSound(
-                        Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + this.cordova.getActivity().getPackageName() + "/raw/silent"),
-                        new AudioAttributes.Builder()
-                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                                .build());
+                channel.setSound(null, null);
                 notificationManager.createNotificationChannel(channel);
             }
         }
